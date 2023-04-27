@@ -3,8 +3,12 @@ import tkinter as tk
 import serial
 import threading
 import time
+import tensorflow as tf
 
 from serial import SerialException
+
+# LOAD AI MODEL
+#model = tf.keras.models.load_model()
 
 #Set-up Window
 window = tk.Tk()
@@ -80,15 +84,18 @@ def updateGui():
     ring_label.config(text=f"Ring: {ring}")
     pinky_label.config(text=f"Pinky: {pinky}")
 
-    #can do model predict stuff here
-    #model.predict()
+    # prepare the sensor data for input to the model
+    sensor_data = [thumb, index, middle, ring, pinky]
+    sensor_data = tf.expand_dims(sensor_data, axis=0)
 
-    # if predict predicts letter, display letter, if no letter, display "None"
-    # set output = to that
+    # use the model to predict the gesture
+    #prediction = model.predict(sensor_data)[0]
 
-    output = "None"
-
-    output_label.config(text=f"Current Gesture: {output}")
+    #if prediction.max() > 0.7:
+    #    gesture =
+    #    output_label.config(text=f"Current Gesture: {gesture}")
+    #else:
+    #    output_label.config(text="Current Gesture: None")
     # schedule the next update
     window.after(1000, updateGui)
 
