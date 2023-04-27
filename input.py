@@ -1,6 +1,8 @@
 import serial
 import threading
 import time
+import csv
+import datetime
 
 # NOTES
 # ABCDE String could be changed
@@ -16,6 +18,7 @@ middle = 0
 ring = 0
 pinky = 0
 
+
 # ESP returning ABCDE string. Need to change later, but can parse with this for now. FNCTN is getting data constantly in its own thread
 def espInput():
     global thumb, index, middle, ring, pinky, output
@@ -23,28 +26,49 @@ def espInput():
     while True:
         try:
             output = espData.readline().decode('utf-8').rstrip()
-            thumb = int(output[1:output.index("B")])
-            index = int(output[output.index("B") + 1:output.index("C")])
-            middle = int(output[output.index("C") + 1:output.index("D")])
-            ring = int(output[output.index("D") + 1:output.index("E")])
-            pinky = int(output[output.index("E") + 1:output.index("F")])
-        except (UnicodeDecodeError, ValueError):
+            output = output.split(",")
+            thumb = int(output[0])
+            index = int(output[1])
+            middle = int(output[2])
+            ring = int(output[3])
+            pinky = int(output[4])
+
+        except (UnicodeDecodeError, ValueError, IndexError):
             pass
+
 
 # thread that continuously runs espInput function to get data
 espInputThread = threading.Thread(target=espInput)
 espInputThread.daemon = True
 espInputThread.start()
 
-# main thread, displays data grabbed by esp thread every 1 second
-while True:
-    time.sleep(1)
-    try:
-        print("Output:", output)
-        print("Thumb:", thumb)
-        print("Index:", index)
-        print("Middle:", middle)
-        print("Ring:", ring)
-        print("Pinky:", pinky, "\n")
-    except:
-        break
+# uncomment for csv file writing
+with open('5.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(['time', 'thumb', 'index', 'middle', 'ring', 'pinky'])
+
+    start_time = datetime.datetime.now()
+
+    # Counter for number of rows written to the CSV file
+    row_count = 0
+
+    # main thread, displays data grabbed by esp thread every 1 second
+    while True:
+        time.sleep(0.005)
+        try:
+            timestamp = (datetime.datetime.now() - start_time).total_seconds()
+            writer.writerow([timestamp, thumb, index, middle, ring, pinky])
+            row_count += 1
+            print("Output: ", output)
+            print("Thumb:", thumb)
+            print("Index:", index)
+            print("Middle:", middle)
+            print("Ring:", ring)
+            print("Pinky:", pinky, "\n")
+
+            # Check if the row count has reached the limit, and end the program if so
+            if row_count >= 1500:
+                break
+
+        except:
+            break
