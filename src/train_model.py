@@ -39,9 +39,6 @@ for category in categories:
             line_data = data[i]
             training_data.append([line_data, category_num])
 
-print(len(training_data), len(training_data[0]))
-print("HERE:",training_data[0])
-
 for category in categories:
     path = os.path.join(testing_dataset_dir, category)  # Path to categories
     category_num = categories.index(category)
