@@ -35,15 +35,16 @@ pinky_label.grid(row=4, column=0, sticky="W")
 frame_output = tk.LabelFrame(window, text="Output")
 frame_output.pack(side=tk.TOP, padx=10, pady=10)
 
-output_label = tk.Label(frame_output, text="Current Gesture: None")
+output_label = tk.Label(frame_output, text="")
 output_label.pack()
+
+espFlag = True
 
 # get serial from board
 try:
     espData = serial.Serial('COM3', 115200)  # COM port & BAUD rate
 except (SerialException):
-    print("Device not recognized")
-    sys.exit()
+    espFlag = False
 
 output = ""
 thumb = 0
@@ -57,17 +58,18 @@ def espInput():
     global thumb, index, middle, ring, pinky, output
 
     while True:
-        try:
-            output = espData.readline().decode('utf-8').rstrip()
-            output = output.split(",")
-            thumb = float(output[0]) / 1300.0
-            index = float(output[1]) / 1458.0
-            middle = float(output[2]) / 1798.0
-            ring = float(output[3]) / 2971.0
-            pinky = float(output[4]) / 1191.0
+        if espFlag:
+            try:
+                output = espData.readline().decode('utf-8').rstrip()
+                output = output.split(",")
+                thumb = float(output[0]) / 1300.0
+                index = float(output[1]) / 1458.0
+                middle = float(output[2]) / 1798.0
+                ring = float(output[3]) / 2971.0
+                pinky = float(output[4]) / 1191.0
 
-        except (UnicodeDecodeError, ValueError, IndexError):
-            pass
+            except (UnicodeDecodeError, ValueError, IndexError):
+                pass
 
 # thread that continuously runs espInput function to get data
 espInputThread = threading.Thread(target=espInput)
@@ -77,29 +79,34 @@ gesture_labels = ['A','B','C','D','E','F','G','H','I','K','L','O','S','W','X','Y
 
 # main thread, displays data grabbed by esp thread every 1 second
 def updateGui():
-    # update the label text with the latest sensor data
-    thumb_label.config(text=f"Thumb: {thumb}")
-    index_label.config(text=f"Index: {index}")
-    middle_label.config(text=f"Middle: {middle}")
-    ring_label.config(text=f"Ring: {ring}")
-    pinky_label.config(text=f"Pinky: {pinky}")
 
-
-    # prepare the sensor data for input to the model
-    input_data = np.array([thumb, index, middle, ring, pinky]).reshape(-1, 1, 5)
-
-    # use the model to predict the gesture
-    prediction = model.predict(input_data)
-
-    if prediction.max() > 0.8:
-        gesture_index = np.argmax(prediction)
-        gesture = gesture_labels[gesture_index]
-        output_label.config(text=f"Current Gesture: ASL {gesture}")
+    if not espFlag:
+        output_label.config(text="Device not recognized")
     else:
-        output_label.config(text="Current Gesture: None")
 
-    # next update
-    window.after(1000, updateGui)
+        # update the label text with the latest sensor data
+        thumb_label.config(text=f"Thumb: {thumb}")
+        index_label.config(text=f"Index: {index}")
+        middle_label.config(text=f"Middle: {middle}")
+        ring_label.config(text=f"Ring: {ring}")
+        pinky_label.config(text=f"Pinky: {pinky}")
+
+        # prepare the sensor data for input to the model
+        input_data = np.array([thumb, index, middle, ring, pinky]).reshape(-1, 1, 5)
+
+        # use the model to predict the gesture
+        prediction = model.predict(input_data)
+        print(prediction.max())
+
+        if prediction.max() > 0.8:
+            gesture_index = np.argmax(prediction)
+            gesture = gesture_labels[gesture_index]
+            output_label.config(text=f"Current Gesture: ASL {gesture}")
+        else:
+            output_label.config(text="Current Gesture: None")
+
+        # next update
+        window.after(1000, updateGui)
 
 # first update
 window.after(1000, updateGui)
