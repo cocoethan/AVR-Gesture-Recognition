@@ -4,13 +4,13 @@ import serial
 import threading
 import time
 import tensorflow as tf
-
+import numpy as np
 from serial import SerialException
 
 # LOAD AI MODEL
-#model = tf.keras.models.load_model()
+model = tf.keras.models.load_model('mind_flayer.h5')
 
-#Set-up Window
+#Set-up gui
 window = tk.Tk()
 window.title("AIVRGlove")
 window.geometry('275x220')
@@ -39,7 +39,6 @@ output_label = tk.Label(frame_output, text="Current Gesture: None")
 output_label.pack()
 
 # get serial from board
-
 try:
     espData = serial.Serial('COM3', 115200)  # COM port & BAUD rate
 except (SerialException):
@@ -61,11 +60,11 @@ def espInput():
         try:
             output = espData.readline().decode('utf-8').rstrip()
             output = output.split(",")
-            thumb = int(output[0])
-            index = int(output[1])
-            middle = int(output[2])
-            ring = int(output[3])
-            pinky = int(output[4])
+            thumb = float(output[0]) / 1300.0
+            index = float(output[1]) / 1458.0
+            middle = float(output[2]) / 1798.0
+            ring = float(output[3]) / 2971.0
+            pinky = float(output[4]) / 1191.0
 
         except (UnicodeDecodeError, ValueError, IndexError):
             pass
@@ -74,6 +73,7 @@ def espInput():
 espInputThread = threading.Thread(target=espInput)
 espInputThread.daemon = True
 espInputThread.start()
+gesture_labels = ['a','b','c','d','e','f','g','h','i','k','l','o','s','w','x','y']
 
 # main thread, displays data grabbed by esp thread every 1 second
 def updateGui():
@@ -84,22 +84,29 @@ def updateGui():
     ring_label.config(text=f"Ring: {ring}")
     pinky_label.config(text=f"Pinky: {pinky}")
 
+
     # prepare the sensor data for input to the model
-    sensor_data = [thumb, index, middle, ring, pinky]
-    sensor_data = tf.expand_dims(sensor_data, axis=0)
+    input_data = np.array([thumb, index, middle, ring, pinky]).reshape(-1, 1, 5)  # shape: (5,)
+    #input_data = np.expand_dims(input_data, axis=0)  # shape: (1, 5)
+    #input_data = np.reshape(input_data, (1500, 1, 1))  # shape: (1500, 5, 1)
 
     # use the model to predict the gesture
-    #prediction = model.predict(sensor_data)[0]
+    prediction = model.predict(input_data)
 
-    #if prediction.max() > 0.7:
-    #    gesture =
-    #    output_label.config(text=f"Current Gesture: {gesture}")
-    #else:
-    #    output_label.config(text="Current Gesture: None")
-    # schedule the next update
+    #print(prediction)
+
+    if prediction.max() > 0.8:
+        gesture_index = np.argmax(prediction)
+        print(gesture_index)
+        gesture = gesture_labels[gesture_index]
+        output_label.config(text=f"Current Gesture: {gesture}")
+    else:
+        output_label.config(text="Current Gesture: None")
+
+    # next update
     window.after(1000, updateGui)
 
-# schedule the first update
+# first update
 window.after(1000, updateGui)
 
 window.mainloop()
