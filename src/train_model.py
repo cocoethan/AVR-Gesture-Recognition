@@ -78,7 +78,7 @@ label_test_set = to_categorical(label_test_set, categories_len)
 
 model = Sequential()
 model.add(keras.layers.GRU(units=32, input_shape=(1, 5), kernel_regularizer=regularizers.l2(0.01)))
-model.add(Dropout(0.5))
+model.add(Dropout(0.2))
 model.add(keras.layers.Dense(units=categories_len, activation='softmax'))
 
 model.summary()
