@@ -73,7 +73,7 @@ def espInput():
 espInputThread = threading.Thread(target=espInput)
 espInputThread.daemon = True
 espInputThread.start()
-gesture_labels = ['a','b','c','d','e','f','g','h','i','k','l','o','s','w','x','y']
+gesture_labels = ['A','B','C','D','E','F','G','H','I','K','L','O','S','W','X','Y']
 
 # main thread, displays data grabbed by esp thread every 1 second
 def updateGui():
@@ -86,20 +86,15 @@ def updateGui():
 
 
     # prepare the sensor data for input to the model
-    input_data = np.array([thumb, index, middle, ring, pinky]).reshape(-1, 1, 5)  # shape: (5,)
-    #input_data = np.expand_dims(input_data, axis=0)  # shape: (1, 5)
-    #input_data = np.reshape(input_data, (1500, 1, 1))  # shape: (1500, 5, 1)
+    input_data = np.array([thumb, index, middle, ring, pinky]).reshape(-1, 1, 5)
 
     # use the model to predict the gesture
     prediction = model.predict(input_data)
 
-    #print(prediction)
-
     if prediction.max() > 0.8:
         gesture_index = np.argmax(prediction)
-        print(gesture_index)
         gesture = gesture_labels[gesture_index]
-        output_label.config(text=f"Current Gesture: {gesture}")
+        output_label.config(text=f"Current Gesture: ASL {gesture}")
     else:
         output_label.config(text="Current Gesture: None")
 
