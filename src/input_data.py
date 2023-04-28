@@ -4,10 +4,6 @@ import time
 import csv
 import datetime
 
-# NOTES
-# ABCDE String could be changed
-# Threading could be changed
-
 # getting serial from board
 espData = serial.Serial('COM3', 115200)  # COM port & BAUD rate
 
@@ -18,8 +14,7 @@ middle = 0
 ring = 0
 pinky = 0
 
-
-# ESP returning ABCDE string. Need to change later, but can parse with this for now. FNCTN is getting data constantly in its own thread
+# Function to get esp input from espInputThread (ensures timing alignment)
 def espInput():
     global thumb, index, middle, ring, pinky, output
 
@@ -36,29 +31,27 @@ def espInput():
         except (UnicodeDecodeError, ValueError, IndexError):
             pass
 
-
 # thread that continuously runs espInput function to get data
 espInputThread = threading.Thread(target=espInput)
 espInputThread.daemon = True
 espInputThread.start()
 
-# uncomment for csv file writing
-with open('5.csv', 'w', newline='') as csvfile:
+# for csv file writing, will end when 1500 data points are collected
+# make csv file name user number.
+with open('1.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(['time', 'thumb', 'index', 'middle', 'ring', 'pinky'])
 
-    start_time = datetime.datetime.now()
+    start = datetime.datetime.now()
 
     # Counter for number of rows written to the CSV file
-    row_count = 0
+    rows = 0
 
-    # main thread, displays data grabbed by esp thread every 1 second
+    # main thread, displays data grabbed by esp, writes to csv file
     while True:
         time.sleep(0.005)
         try:
-            timestamp = (datetime.datetime.now() - start_time).total_seconds()
-            writer.writerow([timestamp, thumb, index, middle, ring, pinky])
-            row_count += 1
+            # display for data validation
             print("Output: ", output)
             print("Thumb:", thumb)
             print("Index:", index)
@@ -66,8 +59,14 @@ with open('5.csv', 'w', newline='') as csvfile:
             print("Ring:", ring)
             print("Pinky:", pinky, "\n")
 
+            # timestamps for model training
+            timestamp = (datetime.datetime.now() - start).total_seconds()
+            # prints as simple csvals
+            writer.writerow([timestamp, thumb, index, middle, ring, pinky])
+            rows += 1
+
             # Check if the row count has reached the limit, and end the program if so
-            if row_count >= 1500:
+            if rows >= 1500:
                 break
 
         except:

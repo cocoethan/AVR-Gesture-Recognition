@@ -32,6 +32,7 @@ middle_label.grid(row=2, column=0, sticky="W")
 ring_label.grid(row=3, column=0, sticky="W")
 pinky_label.grid(row=4, column=0, sticky="W")
 
+# create output frame to display data
 frame_output = tk.LabelFrame(window, text="Output")
 frame_output.pack(side=tk.TOP, padx=10, pady=10)
 
@@ -40,9 +41,13 @@ output_label.pack()
 
 espFlag = True
 
-# get serial from board
+# provide com port and baud rate
+comPort = 'COM3'
+baud = 115200
+
+# check if esp exists
 try:
-    espData = serial.Serial('COM3', 115200)  # COM port & BAUD rate
+    espData = serial.Serial(comPort, baud)  # COM port & BAUD rate
 except (SerialException):
     espFlag = False
 
@@ -53,10 +58,11 @@ middle = 0
 ring = 0
 pinky = 0
 
-# ESP returning ABCDE string. Need to change later, but can parse with this for now. FNCTN is getting data constantly in its own thread
+# Function to get esp input from espInputThread (ensures timing alignment)
 def espInput():
     global thumb, index, middle, ring, pinky, output
 
+    # only reads if the board exists, will exit if board not found
     while True:
         if espFlag:
             try:
@@ -73,10 +79,12 @@ def espInput():
         else:
             break
 
-# thread that continuously runs espInput function to get data
+# thread that continuously runs espInput function to get data, dameon = True so that it will end with the main thread
 espInputThread = threading.Thread(target=espInput)
 espInputThread.daemon = True
 espInputThread.start()
+
+# labels of gestures corresponding to indexes in model
 gesture_labels = ['A','B','C','D','E','F','G','H','I','K','L','O','S','W','X','Y']
 
 # main thread, displays data grabbed by esp thread every 1 second
@@ -85,7 +93,6 @@ def updateGui():
     if not espFlag:
         output_label.config(text="Device not recognized")
     else:
-
         # update the label text with the latest sensor data
         thumb_label.config(text=f"Thumb: {thumb}")
         index_label.config(text=f"Index: {index}")
@@ -98,19 +105,20 @@ def updateGui():
 
         # use the model to predict the gesture
         prediction = model.predict(input_data)
-        print(prediction.max())
 
-        if prediction.max() > 0.8:
+        # if there is a gesture predicted above 70% accuracy, display gesture. Otherwise, invalid
+        if prediction.max() > 0.7: #0.7 best?
             gesture_index = np.argmax(prediction)
             gesture = gesture_labels[gesture_index]
             output_label.config(text=f"Current Gesture: ASL {gesture}")
         else:
             output_label.config(text="Current Gesture: None")
 
-        # next update
+        # update gui after 1 second
         window.after(1000, updateGui)
 
-# first update
+# update gui after 1 second
 window.after(1000, updateGui)
 
+# loop gui
 window.mainloop()
