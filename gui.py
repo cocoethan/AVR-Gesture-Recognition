@@ -70,6 +70,8 @@ def espInput():
 
             except (UnicodeDecodeError, ValueError, IndexError):
                 pass
+        else:
+            break
 
 # thread that continuously runs espInput function to get data
 espInputThread = threading.Thread(target=espInput)
