@@ -94,9 +94,9 @@ label_test_set = to_categorical(label_test_set, 16)
 #use pickle here
 
 model = Sequential()
-model.add(keras.layers.SimpleRNN(units=64, return_sequences=True, input_shape=(1500, 5), kernel_regularizer=regularizers.l2(0.01))) #activation='tanh'
-model.add(keras.layers.SimpleRNN(units=64, return_sequences=False, input_shape=(1500, 5), kernel_regularizer=regularizers.l2(0.01)))
-model.add(keras.layers.Dense(units=36))
+model.add(keras.layers.GRU(units=64, return_sequences=True, input_shape=(1500, 5), kernel_regularizer=regularizers.l2(0.01))) #activation='tanh' units=64, return_sequences=True, input_shape=(1500, 5), kernel_regularizer=regularizers.l2(0.01)
+model.add(keras.layers.GRU(units=64, return_sequences=False, input_shape=(1500, 5), kernel_regularizer=regularizers.l2(0.01)))
+model.add(keras.layers.Dense(units=32))
 ##model.add(keras.layers.Dense(units=16, activation='softmax'))
 model.add(keras.layers.Dense(units=16, activation='softmax'))
 #model.add(BatchNormalization())
@@ -116,11 +116,13 @@ model.add(keras.layers.Dense(units=16, activation='softmax'))
 #metrics = ["accuracy"]
 model.summary()
 
+optim = keras.optimizers.Adam(clipnorm=1.0)
+
 #model.compile(loss=loss, optimizer=optim, metrics=metrics)
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 #batch_size = 25 #64
-epochs = 400
+epochs = 120
 
 #history = model.fit(feature_set, label_set, batch_size = batch_size, epochs = epochs)
 history = model.fit(feature_set, label_set, epochs = epochs)
@@ -158,4 +160,8 @@ test_loss, test_acc = model.evaluate(feature_test_set, label_test_set)
 
 print("\nTest Accuracy:", test_acc)
 
+model.save('mind_flayer.h5')
+
 ###############
+
+
