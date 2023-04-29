@@ -25,3 +25,14 @@ avr_dataset.zip : Zipped folder for our custom dataset containing 5 files of 150
                   -> training_set_raw : Folder for raw data to be used as a training set.
 
 Instructions:
+1. Place 'src' folder in current directory if not already. (Optional: If using train_model.py or normalize_data.py; unzip and place AVRDataset in current directory.)
+2. Change current directory to src folder.
+3. Connect data-glove via USB and find it's correlating COMM port (You can use device manager to find this if using Windows).
+4. Open main.py and change the variables 'comPort' and 'baud' to match your current data-glove's specifications. 
+(Optional: 
+If using train_model.py, change the variables 'dataset_dir' and 'testing_dataset_dir' to the directory the 'training_set_normalized' and 'testing_set_normalized' are currently in.
+If using normalize_data.py, change the variable 'dataset_dir' to the directory the dataset files you want to normalize are in.
+If using input_data.py, change the variables 'espData' to match your current data-glove's specifications.
+)
+5. Compile and run each file you want to run. (Note: If you only want the software running, only compile and run main.py.)
+      Ex.
