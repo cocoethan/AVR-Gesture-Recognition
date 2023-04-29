@@ -35,4 +35,4 @@ If using normalize_data.py, change the variable 'dataset_dir' to the directory t
 If using input_data.py, change the variables 'espData' to match your current data-glove's specifications.
 )
 5. Compile and run each file you want to run. (Note: If you only want the software running, only compile and run main.py.)
-      Ex.
+      Ex. python3 main.py
