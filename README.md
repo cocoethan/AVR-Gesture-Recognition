@@ -33,3 +33,10 @@ AVRGlove-Gesture-Recognition is an American Sign Language (ASL) gesture recognit
 
 6. Compile and run each file you want to run. (Note: If you only want the software running, only compile and run main.py.)
    Ex. python3 main.py
+
+## External Libraries
+* TensorFlow
+* NumPy
+* Pandas
+* Matplotlib
+* PySerial
