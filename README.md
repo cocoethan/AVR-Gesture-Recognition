@@ -26,10 +26,10 @@ AVRGlove-Gesture Recognition is an American Sign Language (ASL) gesture recognit
 3. Connect data-glove via USB and find it's correlating COMM port (You can use device manager to find this if using Windows).
 4. Open main.py and change the variables 'comPort' and 'baud' to match your current data-glove's specifications.
    
-(Optional Steps): 
-   If using train_model.py, change the variables 'dataset_dir' and 'testing_dataset_dir' to the directory the 'training_set_normalized' and 'testing_set_normalized' are currently in.
-   If using normalize_data.py, change the variable 'dataset_dir' to the directory the dataset files you want to normalize are in.
-   If using input_data.py, change the variables 'espData' to match your current data-glove's specifications.
+      (Optional Steps): 
+      If using train_model.py, change the variables 'dataset_dir' and 'testing_dataset_dir' to the directory the 'training_set_normalized' and 'testing_set_normalized' are currently in.
+      If using normalize_data.py, change the variable 'dataset_dir' to the directory the dataset files you want to normalize are in.
+      If using input_data.py, change the variables 'espData' to match your current data-glove's specifications.
 
 6. Compile and run each file you want to run. (Note: If you only want the software running, only compile and run main.py.)
    Ex. python3 main.py
