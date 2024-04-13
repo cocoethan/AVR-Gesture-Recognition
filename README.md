@@ -1,5 +1,5 @@
 # Gesture Recognition for Custom Data Gloves 
-AVRGlove-Gesture Recognition is an American Sign Language (ASL) gesture recognition software that reads input from custom data-gloves.
+AVRGlove-Gesture-Recognition is an American Sign Language (ASL) gesture recognition software that reads input from custom data-gloves.
 
 ## General Info
 * The current release (v0.1) supports only 16 distinct static sign language letters (a,b,c,d,e,f,g,h,i,k,l,o,s,w,x,y).
