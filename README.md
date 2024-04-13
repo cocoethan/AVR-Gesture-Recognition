@@ -32,7 +32,7 @@ AVRGlove-Gesture Recognition is an American Sign Language (ASL) gesture recognit
    If using input_data.py, change the variables 'espData' to match your current data-glove's specifications.
 
 6. Compile and run each file you want to run. (Note: If you only want the software running, only compile and run main.py.)
-      Ex. > python3 main.py
+   Ex. python3 main.py
 
 # Contributors
 Some contributors contributed outside of GitHub. These contributors are included here:
